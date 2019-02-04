@@ -1,0 +1,17 @@
+Thanks to @ardalis for the basis of this
+
+https://ardalis.com/nuget-publication-checklist
+
+Notes: despite what the front page of nuget.org implies - you DON'T have to sign a package with a certificate to distribute it
+
+-- from library root folder (with csproj file):
+dotnet build -c Release
+dotnet publish -c Release
+dotnet pack -c Release /p:Version=1.0.0
+
+-- from /bin/Release folder:
+dotnet nuget push -s https://api.nuget.org/v3/index.json -k <key> Smab.DebugInfo.Whatever.nupkg
+
+git tag -a v1.0.X -m "Published 1.0.X to nuget.org"
+
+git push --follow-tags

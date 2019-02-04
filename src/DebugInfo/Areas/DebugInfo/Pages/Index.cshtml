@@ -1,0 +1,311 @@
+﻿@page
+@model Pages.DebugInfoModel
+@{
+    Layout = "_Layout";
+}
+
+@using Newtonsoft.Json
+
+@inject Microsoft.AspNetCore.Hosting.IHostingEnvironment env
+@inject Microsoft.Extensions.Configuration.IConfiguration config
+
+@{
+    ViewData["Title"] = "Debug Information";
+    // This page is designed to work in Bootstrap3 and 4, but there is one conflict
+    var tab1css = (config["Site:BootstrapVersion"] ?? "").StartsWith("3") ? "in" : "show";
+}
+<h2>@ViewData["Title"]</h2>
+<p></p>
+
+<ul class="nav nav-pills" id="debugTab" role="tablist">
+    <li class="nav-item active">
+        <a class="nav-link active" id="misc-tab" data-toggle="tab" href="#misc" role="tab" aria-controls="misc" aria-selected="true">Miscellaneous</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="provider-tab" data-toggle="tab" href="#provider" role="tab" aria-controls="provider" aria-selected="false">Providers</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="env-tab" data-toggle="tab" href="#env" role="tab" aria-controls="env" aria-selected="false">Environment Variables</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="header-tab" data-toggle="tab" href="#header" role="tab" aria-controls="header" aria-selected="false">Headers</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="cookie-tab" data-toggle="tab" href="#cookie" role="tab" aria-controls="cookie" aria-selected="false">Cookies</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="query-tab" data-toggle="tab" href="#query" role="tab" aria-controls="query" aria-selected="false">Query Strings</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="ihosting-tab" data-toggle="tab" href="#ihosting" role="tab" aria-controls="ihosting" aria-selected="false">IHostingEnvironment</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="iconfig-tab" data-toggle="tab" href="#iconfig" role="tab" aria-controls="iconfig" aria-selected="false">IConfiguration</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="mvc-tab" data-toggle="tab" href="#mvc" role="tab" aria-controls="mvc" aria-selected="false">MVC Structure</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" id="assembly-tab" data-toggle="tab" href="#assembly" role="tab" aria-controls="assembly" aria-selected="false">Assembly Info</a>
+    </li>
+</ul>
+<div class="tab-content mt-3" id="debugTabContent">
+    <div class="tab-pane fade @tab1css active" id="misc" role="tabpanel" aria-labelledby="misc-tab">
+        <h3>Miscellaneous</h3>
+<pre>
+@Model.PreformattedMessage
+</pre>
+    </div>
+    <div class="tab-pane fade" id="provider" role="tabpanel" aria-labelledby="provider-tab">
+        <h3>Provider Information</h3>
+<pre>
+@Model.ProviderInfo
+</pre>
+    </div>
+    <div class="tab-pane fade" id="env" role="tabpanel" aria-labelledby="env-tab">
+        <h3>Environment Variables</h3>
+        <div class="panel panel-primary">
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th>Environment Variable</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.EnvironmentVariablesInfo)
+                    {
+                        <tr>
+                            <td>@item.Key</td>
+                            <td>@item.Value</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="tab-pane fade" id="header" role="tabpanel" aria-labelledby="header-tab">
+        <h3>Request Headers</h3>
+        @if (Model.RequestHeadersInfo.Any())
+        {
+            <div class="panel panel-primary">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.RequestHeadersInfo)
+                        {
+                            <tr>
+                                <td>@item.Key</td>
+                                <td>@item.Value</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p>No request headers found.</p>
+        }
+    </div>
+    <div class="tab-pane fade" id="cookie" role="tabpanel" aria-labelledby="cookie-tab">
+        <h3>Cookies</h3>
+        @if (Model.CookiesInfo.Any())
+        {
+            <div class="panel panel-primary">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.CookiesInfo)
+                        {
+                            <tr>
+                                <td>@item.Key</td>
+                                <td>@item.Value</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p>No cookies found.</p>
+        }
+    </div>
+    <div class="tab-pane fade" id="query" role="tabpanel" aria-labelledby="query-tab">
+        <h3>Query Strings</h3>
+        @if (Model.QueryStringsInfo.Any())
+        {
+            <div class="panel panel-primary">
+                <table class="table table-bordered table-sm">
+                    <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.QueryStringsInfo)
+                        {
+                            <tr>
+                                <td>@item.Key</td>
+                                <td>@item.Value</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p>No Query or QueryString pairs found.</p>
+        }
+    </div>
+    <div class="tab-pane fade" id="ihosting" role="tabpanel" aria-labelledby="ihosting-tab">
+        <h3>IHostingEnvironment</h3>
+<pre>
+@*@JsonConvert.SerializeObject(env, Formatting.Indented)*@
+@Model.EnvironmentFromJson
+</pre>
+    </div>
+    <div class="tab-pane fade" id="iconfig" role="tabpanel" aria-labelledby="iconfig-tab">
+        <h3>IConfiguration</h3>
+<pre>
+@*@JsonConvert.SerializeObject(config, Formatting.Indented)*@
+@Model.ConfigFromJson
+</pre>
+    </div>
+    <div class="tab-pane fade" id="mvc" role="tabpanel" aria-labelledby="mvc-tab">
+        @if (Model.MvcInfo.Controllers.Any())
+        {
+            <div class="panel panel-primary">
+                @foreach (var controller in Model.MvcInfo.Controllers)
+                {
+                    <h4>Controller: @controller.Name</h4>
+                    @if (controller.Fields.Any())
+                    {
+                        <ul>
+                            Fields:
+                            @foreach (var field in controller.Fields)
+                            {
+                                <li>@field</li>
+                            }
+                        </ul>
+                    }
+                    @if (controller.Actions.Any())
+                    {
+                        <ul>
+                            Actions:
+                            @foreach (var action in controller.Actions)
+                            {
+                                <li>
+                                    @action.Name
+                                    @if (action.Parameters.Any())
+                                    {
+                                        <ul>
+                                            @foreach (var parm in action.Parameters)
+                                            {
+                                                <li><strong>@parm.Key</strong> @parm.Value</li>
+                                            }
+                                        </ul>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    }
+                }
+            </div>
+        }
+        else
+        {
+            <p>No MVC Routes.</p>
+        }
+    </div>
+    <div class="tab-pane fade" id="assembly" role="tabpanel" aria-labelledby="assembly-tab">
+        <h3>Assemblies Information</h3>
+        <h4>Assemblies</h4>
+        <table class="table table-bordered table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Assembly version</th>
+                    <th>File version</th>
+                    <th>Product version</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ai in Model.AssembliesInfo.OtherAssemblies)
+                {
+                    <tr>
+                        <td>@ai.Name</td>
+                        <td>@ai.AssemblyVersion</td>
+                        <td>@(ai.FileVersion ?? "")</td>
+                        <td>@ai.ProductVersion</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <table class="table table-bordered table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Key</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ai in Model.AssembliesInfo.OtherAssemblies)
+                {
+                    bool firstRow = true;
+                    @foreach (var ca in ai.CustomAttributes)
+                    {
+                        <tr>
+                            @if (firstRow)
+                            {
+                                <th rowspan="@ai.CustomAttributes.Count">@ai.Name</th>
+                                firstRow = false;
+                            }
+                            <td>@ca.Key</td>
+                            <td>@ca.Value</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+
+        <h4>Microsoft Assemblies</h4>
+        <table class="table table-bordered table-sm table-striped">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Assembly version</th>
+                    <th>File version</th>
+                    <th>Product version</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var ai in Model.AssembliesInfo.MicrosoftAssemblies)
+                {
+                    <tr>
+                        <td>@ai.Name</td>
+                        <td>@ai.AssemblyVersion</td>
+                        <td>@ai.FileVersion</td>
+                        <td>@ai.ProductVersion</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
