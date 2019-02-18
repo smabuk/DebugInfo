@@ -12,9 +12,9 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 
-namespace Pages
+namespace Smab.DebugInfo.Pages
 {
-    public class SmabDebugInfoModel : PageModel
+    public class DebugInfoModel : PageModel
     {
         public class MVCStructure
         {
@@ -119,8 +119,8 @@ namespace Pages
         private readonly IConfiguration _config;
         private readonly ILogger _logger;
 
-        public SmabDebugInfoModel(
-            ILogger<SmabDebugInfoModel> logger,
+        public DebugInfoModel(
+            ILogger<DebugInfoModel> logger,
             IHostingEnvironment env,
             IConfiguration config
             )
@@ -132,7 +132,7 @@ namespace Pages
 
         public void OnGet()
         {
-            Debug.WriteLine($"Starting OnGet in {nameof(SmabDebugInfoModel.OnGet)}");
+            Debug.WriteLine($"Starting OnGet in {nameof(DebugInfoModel.OnGet)}");
 
             EnvironmentVariablesInfo.Clear();
             foreach (DictionaryEntry de in Environment.GetEnvironmentVariables())

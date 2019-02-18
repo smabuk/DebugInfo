@@ -12,15 +12,15 @@
     <PackageProjectUrl>https://github.com/smabuk/Smab.DebugInfo</PackageProjectUrl>
     <RepositoryUrl>https://github.com/smabuk/DebugInfo</RepositoryUrl>
     <PackageTags>asp.net core, diagnostic, assemblies, configuration, config</PackageTags>
-    <PackageReleaseNotes>Add Smab prefix to DebugInfoModel</PackageReleaseNotes>
-    <VersionPrefix>0.9.2</VersionPrefix>
-    <Preview></Preview>
+    <PackageReleaseNotes>Refactor assembly and class names</PackageReleaseNotes>
+    <VersionPrefix>0.9.3</VersionPrefix>
+    <Preview>alpha</Preview>
     <VersionSuffix Condition="'$(Preview)' != ''">$(Preview).$([System.DateTime]::get_Now().get_Year())$([System.DateTime]::get_Now().get_Month().ToString("D2"))$([System.DateTime]::get_Now().get_Day().ToString("D2"))-$([System.DateTime]::get_Now().get_Hour().ToString("D2"))$([System.DateTime]::get_Now().get_Minute().ToString("D2"))</VersionSuffix>
     <!--<PackageIconUrl>https://user-images.githubusercontent.com/782127/33497760-facf6550-d69c-11e7-94e4-b3856da259a9.png</PackageIconUrl>-->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RootNamespace>Smab.DebugInfo</RootNamespace>
     <Product>Smab.DebugInfo</Product>
-    <AssemblyName>SmabDebugInfo</AssemblyName>
+    <AssemblyName>Smab.DebugInfo</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
