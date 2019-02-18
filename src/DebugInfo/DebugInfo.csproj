@@ -9,17 +9,18 @@
     <Company></Company>
     <Description>Diagnostic middleware for ASP.NET Core to display information useful when debugging an ASP.NET Core 2.x running environment.</Description>
     <Summary>Diagnostic middleware for ASP.NET Core to display information useful when debugging an ASP.NET Core 2.x running environment.</Summary>
-    <PackageProjectUrl>https://github.com/smabuk/DebugInfo</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/smabuk/Smab.DebugInfo</PackageProjectUrl>
     <RepositoryUrl>https://github.com/smabuk/DebugInfo</RepositoryUrl>
     <PackageTags>asp.net core, diagnostic, assemblies, configuration, config</PackageTags>
-    <PackageReleaseNotes>Work-around to provide some data for IHostingEnvironment in ASP.NET Core 2.2 (serialization broken from 2.1)</PackageReleaseNotes>
-    <VersionPrefix>0.9.1</VersionPrefix>
+    <PackageReleaseNotes>Add Smab prefix to DebugInfoModel</PackageReleaseNotes>
+    <VersionPrefix>0.9.2</VersionPrefix>
     <Preview></Preview>
     <VersionSuffix Condition="'$(Preview)' != ''">$(Preview).$([System.DateTime]::get_Now().get_Year())$([System.DateTime]::get_Now().get_Month().ToString("D2"))$([System.DateTime]::get_Now().get_Day().ToString("D2"))-$([System.DateTime]::get_Now().get_Hour().ToString("D2"))$([System.DateTime]::get_Now().get_Minute().ToString("D2"))</VersionSuffix>
     <!--<PackageIconUrl>https://user-images.githubusercontent.com/782127/33497760-facf6550-d69c-11e7-94e4-b3856da259a9.png</PackageIconUrl>-->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <RootNamespace>Smab.DebugInfo</RootNamespace>
     <Product>Smab.DebugInfo</Product>
+    <AssemblyName>SmabDebugInfo</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
