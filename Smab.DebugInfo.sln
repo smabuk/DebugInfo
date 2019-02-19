@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DebugInfo", "src\DebugInfo\DebugInfo.csproj", "{650FADD5-E371-449F-90BC-89D00616700F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Smab.DebugInfo", "src\Smab.DebugInfo\Smab.DebugInfo.csproj", "{650FADD5-E371-449F-90BC-89D00616700F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDemo", "src\WebDemo\WebDemo.csproj", "{721CA1E3-65C6-4211-988D-E8F145EA032E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebDemo", "src\WebDemo\WebDemo.csproj", "{721CA1E3-65C6-4211-988D-E8F145EA032E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0D3E53F9-57FB-43FB-BB37-98A38A534531}"
 	ProjectSection(SolutionItems) = preProject

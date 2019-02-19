@@ -14,7 +14,7 @@
 
 
   <ItemGroup>
-    <ProjectReference Include="..\DebugInfo\DebugInfo.csproj" />
+    <ProjectReference Include="..\Smab.DebugInfo\Smab.DebugInfo.csproj" />
   </ItemGroup>
 
 </Project>
