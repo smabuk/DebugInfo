@@ -1,20 +1,20 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Collections;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Smab.DebugInfo.Pages
 {
-    public class DebugInfoModel : PageModel
+	public class DebugInfoModel : PageModel
     {
         public class MVCStructure
         {
@@ -163,15 +163,19 @@ namespace Smab.DebugInfo.Pages
                 CookiesInfo.TryAdd(c.Key.ToString(), c.Value.ToString());
             }
 
-            EnvironmentFromJson = $"EnvironmentName: {_env.EnvironmentName}";
+			EnvironmentFromJson = $"EnvironmentName: {_env.EnvironmentName}";
             EnvironmentFromJson += Environment.NewLine + $"ApplicationName: {_env.ApplicationName}";
             EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
             EnvironmentFromJson += Environment.NewLine + $"ContentRootPath: {_env.ContentRootPath}";
 
-            // ToDo Broken in 2.2 with Newtonsoft 12.xxx
+			var jsonOptions = new JsonSerializerOptions
+			{
+				WriteIndented = true,
+			};
+
             try
             {
-                EnvironmentFromJson = JsonConvert.SerializeObject(_env, Formatting.Indented);
+                EnvironmentFromJson = JsonSerializer.Serialize(_env, jsonOptions);
             }
             catch (Exception ex)
             {
@@ -182,17 +186,21 @@ namespace Smab.DebugInfo.Pages
                 EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
                 EnvironmentFromJson += Environment.NewLine + $"ContentRootPath: {_env.ContentRootPath}";
             }
+
             try
             {
-                ConfigFromJson = JsonConvert.SerializeObject(_config, Formatting.Indented);
+                ConfigFromJson = JsonSerializer.Serialize(_config, jsonOptions);
             }
             catch (Exception ex)
             {
-                ConfigFromJson = "Broken in ASP.NET Core 2.2 with Newtonsoft 12.0.0.0";
                 ConfigFromJson += Environment.NewLine + Environment.NewLine;
-                ConfigFromJson += "JsonConvert.SerializeObject(_config, Formatting.Indented)";
+                ConfigFromJson += "System.Text.JsonSerializer.Serialize(_config, jsonOptions)";
                 ConfigFromJson += Environment.NewLine + $"{ex.Message}";
             }
+			if (ConfigFromJson == "{}")
+			{
+	            ConfigFromJson = "Since ASPNet 2.2 IConfiguration fails to Serialize to Json";
+			}
 
             var mvcH = new DebugMvcHelper();
             foreach (var controller in mvcH.GetControllers<Controller>().OrderBy(i => i.Name))
