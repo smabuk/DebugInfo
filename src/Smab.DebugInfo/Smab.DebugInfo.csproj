@@ -14,7 +14,7 @@
     <PackageTags>asp.net core, diagnostic, assemblies, configuration, config</PackageTags>
     <PackageReleaseNotes>Refactor assembly and class names</PackageReleaseNotes>
     <VersionPrefix>0.9.3</VersionPrefix>
-    <Preview>alpha</Preview>
+    <Preview>preview</Preview>
     <VersionSuffix Condition="'$(Preview)' != ''">$(Preview).$([System.DateTime]::get_Now().get_Year())$([System.DateTime]::get_Now().get_Month().ToString("D2"))$([System.DateTime]::get_Now().get_Day().ToString("D2"))-$([System.DateTime]::get_Now().get_Hour().ToString("D2"))$([System.DateTime]::get_Now().get_Minute().ToString("D2"))</VersionSuffix>
     <!--<PackageIconUrl>https://user-images.githubusercontent.com/782127/33497760-facf6550-d69c-11e7-94e4-b3856da259a9.png</PackageIconUrl>-->
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

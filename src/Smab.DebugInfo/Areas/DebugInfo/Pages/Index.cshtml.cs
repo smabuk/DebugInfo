@@ -138,7 +138,7 @@ namespace Smab.DebugInfo.Pages
             foreach (DictionaryEntry de in Environment.GetEnvironmentVariables())
             {
                 string key = de.Key.ToString().ToLowerInvariant();
-                if (key.Contains("secret") || key.Contains("key") || key.Contains("password") || key.Contains("pwd") || key.EndsWith("address"))
+                if (key.Contains("secret") || key.Contains("key") || key.Contains("password") || key.Contains("pwd") || key.StartsWith("rules") || key.EndsWith("address"))
                 {
                     EnvironmentVariablesInfo.TryAdd(de.Key.ToString(), "****************");
                 }
@@ -295,7 +295,7 @@ namespace Smab.DebugInfo.Pages
                     provider.TryGet(key, out value);
                     if (!string.IsNullOrWhiteSpace(value))
                     {
-                        if (key.ToLowerInvariant().Contains("secret") || key.ToLowerInvariant().Contains("key") || key.ToLowerInvariant().Contains("password") || key.ToLowerInvariant().Contains("pwd") || key.ToLowerInvariant().EndsWith("address"))
+                        if (key.ToLowerInvariant().Contains("secret") || key.ToLowerInvariant().Contains("key") || key.ToLowerInvariant().Contains("password") || key.ToLowerInvariant().Contains("pwd") || key.ToLowerInvariant().StartsWith("rules") || key.ToLowerInvariant().EndsWith("address"))
                         {
                             value = "********";
                         }
