@@ -1,7 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+    <TieredCompilation>true</TieredCompilation>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <PropertyGroup>
     <PackageId>Smab.DebugInfo</PackageId>
     <Title>Smab.DebugInfo</Title>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
@@ -12,8 +19,8 @@
     <PackageProjectUrl>https://github.com/smabuk/Smab.DebugInfo</PackageProjectUrl>
     <RepositoryUrl>https://github.com/smabuk/DebugInfo</RepositoryUrl>
     <PackageTags>asp.net core, diagnostic, assemblies, configuration, config</PackageTags>
-    <PackageReleaseNotes>Refactor assembly and class names</PackageReleaseNotes>
-    <VersionPrefix>0.9.3</VersionPrefix>
+    <PackageReleaseNotes>Nullable checks</PackageReleaseNotes>
+    <VersionPrefix>0.9.7</VersionPrefix>
     <Preview>preview</Preview>
     <VersionSuffix Condition="'$(Preview)' != ''">$(Preview).$([System.DateTime]::get_Now().get_Year())$([System.DateTime]::get_Now().get_Month().ToString("D2"))$([System.DateTime]::get_Now().get_Day().ToString("D2"))-$([System.DateTime]::get_Now().get_Hour().ToString("D2"))$([System.DateTime]::get_Now().get_Minute().ToString("D2"))</VersionSuffix>
     <!--<PackageIconUrl>https://user-images.githubusercontent.com/782127/33497760-facf6550-d69c-11e7-94e4-b3856da259a9.png</PackageIconUrl>-->
@@ -24,7 +31,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.3" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.1.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.2.0" />
   </ItemGroup>
 </Project>

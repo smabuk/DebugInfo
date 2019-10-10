@@ -20,13 +20,13 @@ namespace Smab.DebugInfo.Pages
         {
             public class MVCAction
             {
-                public string Name { get; set; }
-                public SortedDictionary<string, string> Parameters = new SortedDictionary<string, string>();
+                public string Name { get; set; } = "";
+				public SortedDictionary<string, string> Parameters = new SortedDictionary<string, string>();
             }
             public class MVCController
             {
-                public string Name { get; set; }
-                public List<string> Fields = new List<string>();
+                public string Name { get; set; } = "";
+				public List<string> Fields = new List<string>();
                 public List<MVCAction> Actions = new List<MVCAction>();
             }
             public List<MVCController> Controllers { get; set; } = new List<MVCController>();
@@ -34,21 +34,21 @@ namespace Smab.DebugInfo.Pages
 
         public class AssemblyInfo
         {
-            public Assembly Assembly { get; set; }
+            public Assembly? Assembly { get; set; }
 
-            public string Name { get; set; }
-            public string AssemblyVersion => Assembly
+            public string Name { get; set; } = "";
+			public string AssemblyVersion => Assembly?
                 .GetName()
                 .Version
-                .ToString();
-            public string FileVersion => Assembly
+                .ToString() ?? "";
+            public string FileVersion => Assembly?
                 .GetCustomAttribute<AssemblyFileVersionAttribute>()?
                 .Version ?? "";
-            public string ProductVersion => Assembly
+            public string ProductVersion => Assembly?
                 .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
                 .InformationalVersion ?? "";
-            public string Location => Assembly.IsDynamic ? "" : Assembly.Location;
-            public string CodeBase => Assembly.IsDynamic ? "" : Assembly.CodeBase;
+            public string Location => IsDynamic ? "" : Assembly?.Location ?? "";
+            public string CodeBase => IsDynamic ? "" : Assembly?.CodeBase ?? "";
 
             public SortedDictionary<string, string> CustomAttributes
             {
@@ -56,23 +56,26 @@ namespace Smab.DebugInfo.Pages
                 {
                     int i = 0;
                     SortedDictionary<string, string> ca1 = new SortedDictionary<string, string>();
-                    foreach (var ca in Assembly.CustomAttributes.Where(ca => ca.AttributeType.ToString().StartsWith("System.Reflection.Assembly")))
-                    {
-                        if (ca1.ContainsKey(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", "")))
-                        {
-                            i++;
-                            ca1.Add(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", "") + "_" + i.ToString(), ca.ConstructorArguments[0].Value.ToString());
-                        }
-                        else
-                        {
-                            ca1.Add(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", ""), ca.ConstructorArguments[0].Value.ToString());
-                        }
-                    }
+					if (Assembly != null)
+					{
+						foreach (var ca in Assembly.CustomAttributes.Where(ca => ca.AttributeType.ToString().StartsWith("System.Reflection.Assembly")))
+						{
+							if (ca1.ContainsKey(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", "")))
+							{
+								i++;
+								ca1.Add(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", "") + "_" + i.ToString(), ca.ConstructorArguments[0].Value.ToString());
+							}
+							else
+							{
+								ca1.Add(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", ""), ca.ConstructorArguments[0].Value.ToString());
+							}
+						}
+					}
                     return ca1;
                 }
             }
 
-            public bool IsDynamic => Assembly.IsDynamic;
+            public bool IsDynamic => Assembly?.IsDynamic ?? false;
             public bool IsMicrosoft => (
                                 Name.StartsWith("Microsoft.")
                              || Name.StartsWith("Newtonsoft.Json")
@@ -103,17 +106,17 @@ namespace Smab.DebugInfo.Pages
         public SortedDictionary<string, string> RequestHeadersInfo = new SortedDictionary<string, string>();
         public SortedDictionary<string, string> QueryStringsInfo = new SortedDictionary<string, string>();
         public SortedDictionary<string, string> CookiesInfo = new SortedDictionary<string, string>();
-        public string EnvironmentFromJson;
-        public string ConfigFromJson;
-        public string ProviderInfo;
+        public string EnvironmentFromJson = "";
+        public string ConfigFromJson = "";
+        public string ProviderInfo = "";
         public MVCStructure MvcInfo = new MVCStructure();
         public AssembliesInformation AssembliesInfo = new AssembliesInformation();
 
 
-        public string PreformattedMessage { get; set; }
+        public string PreformattedMessage { get; set; } = "";
 
 
-        private System.Text.StringBuilder strText = new System.Text.StringBuilder("");
+		private System.Text.StringBuilder strText = new System.Text.StringBuilder("");
 
         private readonly IHostingEnvironment _env;
         private readonly IConfiguration _config;
@@ -172,6 +175,8 @@ namespace Smab.DebugInfo.Pages
             }
             catch (Exception ex)
             {
+				_logger.LogError("Serialize IHostingEnvironment Error: {Error}", ex.Message);
+
                 EnvironmentFromJson = $"EnvironmentName: {_env.EnvironmentName}";
                 EnvironmentFromJson += Environment.NewLine + $"ApplicationName: {_env.ApplicationName}";
                 EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
@@ -290,8 +295,10 @@ namespace Smab.DebugInfo.Pages
                 List<string> keys = new List<string>();
                 string value = "";
 
-                foreach (var key in GetProviderKeys(provider, null))
-                {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+				foreach (var key in GetProviderKeys(provider, null))
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+				{
                     provider.TryGet(key, out value);
                     if (!string.IsNullOrWhiteSpace(value))
                     {
