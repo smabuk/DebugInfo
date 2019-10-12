@@ -5,10 +5,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.Json;
-using Microsoft.AspNetCore.Hosting;
+#if NETCOREAPP2_2
+	using Microsoft.AspNetCore.Hosting;
+#endif
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
+#if NETCOREAPP3_0
+	using Microsoft.Extensions.Hosting;
+#endif
 using Microsoft.Extensions.Logging;
 using Smab.DebugInfo.Helpers;
 using Smab.DebugInfo.Models;
@@ -32,13 +37,21 @@ namespace Smab.DebugInfo.Pages
 		
 		private readonly System.Text.StringBuilder strText = new System.Text.StringBuilder("");
 
+#if NETCOREAPP2_2
         private readonly IHostingEnvironment _env;
+#elif NETCOREAPP3_0
+        private readonly IHostEnvironment _env;
+#endif
         private readonly IConfiguration _config;
         private readonly ILogger _logger;
 
         public DebugInfoModel(
             ILogger<DebugInfoModel> logger,
-            IHostingEnvironment env,
+#if NETCOREAPP2_2
+			IHostingEnvironment env,
+#elif NETCOREAPP3_0
+			IHostEnvironment env,
+#endif
             IConfiguration config
             )
         {
@@ -79,7 +92,9 @@ namespace Smab.DebugInfo.Pages
 
 			EnvironmentFromJson = $"EnvironmentName: {_env.EnvironmentName}";
             EnvironmentFromJson += Environment.NewLine + $"ApplicationName: {_env.ApplicationName}";
-            EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
+#if NETCOREAPP2_2
+			EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
+#endif
             EnvironmentFromJson += Environment.NewLine + $"ContentRootPath: {_env.ContentRootPath}";
 
 			var jsonOptions = new JsonSerializerOptions
@@ -89,7 +104,7 @@ namespace Smab.DebugInfo.Pages
 
             try
             {
-                EnvironmentFromJson = JsonSerializer.Serialize(_env, jsonOptions);
+                EnvironmentFromJson = JsonSerializer.Serialize<object>(_env, jsonOptions);
             }
             catch (Exception ex)
             {
@@ -97,8 +112,10 @@ namespace Smab.DebugInfo.Pages
 
                 EnvironmentFromJson = $"EnvironmentName: {_env.EnvironmentName}";
                 EnvironmentFromJson += Environment.NewLine + $"ApplicationName: {_env.ApplicationName}";
-                EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
-                EnvironmentFromJson += Environment.NewLine + $"ContentRootPath: {_env.ContentRootPath}";
+#if NETCOREAPP2_2
+				EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
+#endif
+				EnvironmentFromJson += Environment.NewLine + $"ContentRootPath: {_env.ContentRootPath}";
             }
 
             try
