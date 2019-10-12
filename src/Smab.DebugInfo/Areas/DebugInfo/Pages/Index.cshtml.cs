@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.AspNetCore.Hosting;
@@ -11,96 +10,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Smab.DebugInfo.Helpers;
+using Smab.DebugInfo.Models;
 
 namespace Smab.DebugInfo.Pages
 {
-	public class DebugInfoModel : PageModel
+	public partial class DebugInfoModel : PageModel
     {
-        public class MVCStructure
-        {
-            public class MVCAction
-            {
-                public string Name { get; set; } = "";
-				public SortedDictionary<string, string> Parameters = new SortedDictionary<string, string>();
-            }
-            public class MVCController
-            {
-                public string Name { get; set; } = "";
-				public List<string> Fields = new List<string>();
-                public List<MVCAction> Actions = new List<MVCAction>();
-            }
-            public List<MVCController> Controllers { get; set; } = new List<MVCController>();
-        }
-
-        public class AssemblyInfo
-        {
-            public Assembly? Assembly { get; set; }
-
-            public string Name { get; set; } = "";
-			public string AssemblyVersion => Assembly?
-                .GetName()
-                .Version
-                .ToString() ?? "";
-            public string FileVersion => Assembly?
-                .GetCustomAttribute<AssemblyFileVersionAttribute>()?
-                .Version ?? "";
-            public string ProductVersion => Assembly?
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-                .InformationalVersion ?? "";
-            public string Location => IsDynamic ? "" : Assembly?.Location ?? "";
-            public string CodeBase => IsDynamic ? "" : Assembly?.CodeBase ?? "";
-
-            public SortedDictionary<string, string> CustomAttributes
-            {
-                get
-                {
-                    int i = 0;
-                    SortedDictionary<string, string> ca1 = new SortedDictionary<string, string>();
-					if (Assembly != null)
-					{
-						foreach (var ca in Assembly.CustomAttributes.Where(ca => ca.AttributeType.ToString().StartsWith("System.Reflection.Assembly")))
-						{
-							if (ca1.ContainsKey(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", "")))
-							{
-								i++;
-								ca1.Add(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", "") + "_" + i.ToString(), ca.ConstructorArguments[0].Value.ToString());
-							}
-							else
-							{
-								ca1.Add(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", ""), ca.ConstructorArguments[0].Value.ToString());
-							}
-						}
-					}
-                    return ca1;
-                }
-            }
-
-            public bool IsDynamic => Assembly?.IsDynamic ?? false;
-            public bool IsMicrosoft => (
-                                Name.StartsWith("Microsoft.")
-                             || Name.StartsWith("Newtonsoft.Json")
-                             || Name.StartsWith("ProductionBreakpoints")
-                             || Name.StartsWith("Remotion")
-                             || Name.StartsWith("SQLitePCLRaw")
-                             || Name.StartsWith("System.")
-                             || Name.StartsWith("FSharp.")
-                             || Name.StartsWith("dotnet")
-                             || Name.StartsWith("mscor")
-                             || Name.StartsWith("netstandard"));
-        }
-        public class AssembliesInformation
-        {
-            public List<AssemblyInfo> AllAssemblies = new List<AssemblyInfo>();
-
-            public List<AssemblyInfo> MicrosoftAssemblies => (from a in AllAssemblies
-                                                              where (a.IsMicrosoft)
-                                                              select a
-                         ).ToList();
-            public List<AssemblyInfo> OtherAssemblies => (from a in AllAssemblies
-                                                          where !(a.IsMicrosoft)
-                                                          select a
-                         ).ToList();
-        }
 
         public SortedDictionary<string, string> EnvironmentVariablesInfo = new SortedDictionary<string, string>();
         public SortedDictionary<string, string> RequestHeadersInfo = new SortedDictionary<string, string>();
@@ -111,11 +27,9 @@ namespace Smab.DebugInfo.Pages
         public string ProviderInfo = "";
         public MVCStructure MvcInfo = new MVCStructure();
         public AssembliesInformation AssembliesInfo = new AssembliesInformation();
-
-
+		
         public string PreformattedMessage { get; set; } = "";
-
-
+		
 		private System.Text.StringBuilder strText = new System.Text.StringBuilder("");
 
         private readonly IHostingEnvironment _env;
@@ -189,6 +103,7 @@ namespace Smab.DebugInfo.Pages
 
             try
             {
+                //ConfigFromJson = JsonSerializer.Serialize(_config, _config.GetType(), jsonOptions);
                 ConfigFromJson = JsonSerializer.Serialize(_config, jsonOptions);
             }
             catch (Exception ex)
@@ -344,87 +259,5 @@ namespace Smab.DebugInfo.Pages
             return keys;
         }
 
-    }
-
-
-
-    class DebugMvcHelper
-    {
-        private static List<Type> GetSubClasses<T>()
-        {
-            return AppDomain
-                .CurrentDomain
-                .GetAssemblies()
-                .SelectMany(
-                    a => a.GetTypes().Where(type => type.IsSubclassOf(typeof(T)))
-                )
-                .Distinct()
-                .ToList();
-        }
-
-        public List<Type> GetControllers<T>()
-        {
-            List<Type> controllers = new List<Type>();
-            GetSubClasses<Controller>().ForEach(
-                type => controllers.Add(type.GetTypeInfo()));
-            return controllers;
-        }
-
-        public List<string> GetControllerNames()
-        {
-            List<string> controllerNames = new List<string>();
-            GetSubClasses<Controller>().ForEach(
-                type => controllerNames.Add(type.Name));
-            return controllerNames;
-        }
-
-        public List<FieldInfo> GetDeclaredFields(string ControllerName)
-        {
-            List<FieldInfo> fields = new List<FieldInfo>();
-
-            foreach (var controller in GetSubClasses<Controller>())
-            {
-                if (controller.Name == ControllerName)
-                {
-                    controller.GetTypeInfo().DeclaredFields.ToList().ForEach(f => fields.Add(f));
-                }
-            }
-            return fields;
-        }
-        public List<MethodInfo> GetDeclaredMethods(string ControllerName)
-        {
-            List<MethodInfo> actions = new List<MethodInfo>();
-
-            foreach (var controller in GetSubClasses<Controller>())
-            {
-                if (controller.Name == ControllerName)
-                {
-                    var methods = controller.GetTypeInfo().DeclaredMethods;
-                    foreach (var m in methods)
-                    {
-                        actions.Add(m);
-                    }
-                }
-            }
-            return actions;
-        }
-
-        public List<string> GetActionNames(string ControllerName)
-        {
-            List<string> actionNames = new List<string>();
-
-            foreach (var controller in GetSubClasses<Controller>())
-            {
-                if (controller.Name == ControllerName)
-                {
-                    var methods = controller.GetTypeInfo().DeclaredMethods;
-                    foreach (var info in methods)
-                    {
-                        actionNames.Add(info.Name);
-                    }
-                }
-            }
-            return actionNames;
-        }
     }
 }
