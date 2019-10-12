@@ -30,7 +30,7 @@ namespace Smab.DebugInfo.Pages
 		
         public string PreformattedMessage { get; set; } = "";
 		
-		private System.Text.StringBuilder strText = new System.Text.StringBuilder("");
+		private readonly System.Text.StringBuilder strText = new System.Text.StringBuilder("");
 
         private readonly IHostingEnvironment _env;
         private readonly IConfiguration _config;
