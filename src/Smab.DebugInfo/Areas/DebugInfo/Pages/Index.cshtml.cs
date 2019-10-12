@@ -1,127 +1,57 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+#if NETCOREAPP2_2
+	using Microsoft.AspNetCore.Hosting;
+#endif
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Collections;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
+#if NETCOREAPP3_0
+	using Microsoft.Extensions.Hosting;
+#endif
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
-using System.Reflection;
-using System.Runtime.InteropServices;
+using Smab.DebugInfo.Helpers;
+using Smab.DebugInfo.Models;
 
 namespace Smab.DebugInfo.Pages
 {
-    public class DebugInfoModel : PageModel
+	public partial class DebugInfoModel : PageModel
     {
-        public class MVCStructure
-        {
-            public class MVCAction
-            {
-                public string Name { get; set; }
-                public SortedDictionary<string, string> Parameters = new SortedDictionary<string, string>();
-            }
-            public class MVCController
-            {
-                public string Name { get; set; }
-                public List<string> Fields = new List<string>();
-                public List<MVCAction> Actions = new List<MVCAction>();
-            }
-            public List<MVCController> Controllers { get; set; } = new List<MVCController>();
-        }
-
-        public class AssemblyInfo
-        {
-            public Assembly Assembly { get; set; }
-
-            public string Name { get; set; }
-            public string AssemblyVersion => Assembly
-                .GetName()
-                .Version
-                .ToString();
-            public string FileVersion => Assembly
-                .GetCustomAttribute<AssemblyFileVersionAttribute>()?
-                .Version ?? "";
-            public string ProductVersion => Assembly
-                .GetCustomAttribute<AssemblyInformationalVersionAttribute>()?
-                .InformationalVersion ?? "";
-            public string Location => Assembly.IsDynamic ? "" : Assembly.Location;
-            public string CodeBase => Assembly.IsDynamic ? "" : Assembly.CodeBase;
-
-            public SortedDictionary<string, string> CustomAttributes
-            {
-                get
-                {
-                    int i = 0;
-                    SortedDictionary<string, string> ca1 = new SortedDictionary<string, string>();
-                    foreach (var ca in Assembly.CustomAttributes.Where(ca => ca.AttributeType.ToString().StartsWith("System.Reflection.Assembly")))
-                    {
-                        if (ca1.ContainsKey(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", "")))
-                        {
-                            i++;
-                            ca1.Add(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", "") + "_" + i.ToString(), ca.ConstructorArguments[0].Value.ToString());
-                        }
-                        else
-                        {
-                            ca1.Add(ca.AttributeType.ToString().Replace("System.Reflection.Assembly", "").Replace("Attribute", ""), ca.ConstructorArguments[0].Value.ToString());
-                        }
-                    }
-                    return ca1;
-                }
-            }
-
-            public bool IsDynamic => Assembly.IsDynamic;
-            public bool IsMicrosoft => (
-                                Name.StartsWith("Microsoft.")
-                             || Name.StartsWith("Newtonsoft.Json")
-                             || Name.StartsWith("ProductionBreakpoints")
-                             || Name.StartsWith("Remotion")
-                             || Name.StartsWith("SQLitePCLRaw")
-                             || Name.StartsWith("System.")
-                             || Name.StartsWith("FSharp.")
-                             || Name.StartsWith("dotnet")
-                             || Name.StartsWith("mscor")
-                             || Name.StartsWith("netstandard"));
-        }
-        public class AssembliesInformation
-        {
-            public List<AssemblyInfo> AllAssemblies = new List<AssemblyInfo>();
-
-            public List<AssemblyInfo> MicrosoftAssemblies => (from a in AllAssemblies
-                                                              where (a.IsMicrosoft)
-                                                              select a
-                         ).ToList();
-            public List<AssemblyInfo> OtherAssemblies => (from a in AllAssemblies
-                                                          where !(a.IsMicrosoft)
-                                                          select a
-                         ).ToList();
-        }
 
         public SortedDictionary<string, string> EnvironmentVariablesInfo = new SortedDictionary<string, string>();
         public SortedDictionary<string, string> RequestHeadersInfo = new SortedDictionary<string, string>();
         public SortedDictionary<string, string> QueryStringsInfo = new SortedDictionary<string, string>();
         public SortedDictionary<string, string> CookiesInfo = new SortedDictionary<string, string>();
-        public string EnvironmentFromJson;
-        public string ConfigFromJson;
-        public string ProviderInfo;
+        public string EnvironmentFromJson = "";
+        public string ConfigFromJson = "";
+        public string ProviderInfo = "";
         public MVCStructure MvcInfo = new MVCStructure();
         public AssembliesInformation AssembliesInfo = new AssembliesInformation();
+		
+        public string PreformattedMessage { get; set; } = "";
+		
+		private readonly System.Text.StringBuilder strText = new System.Text.StringBuilder("");
 
-
-        public string PreformattedMessage { get; set; }
-
-
-        private System.Text.StringBuilder strText = new System.Text.StringBuilder("");
-
+#if NETCOREAPP2_2
         private readonly IHostingEnvironment _env;
+#elif NETCOREAPP3_0
+        private readonly IHostEnvironment _env;
+#endif
         private readonly IConfiguration _config;
         private readonly ILogger _logger;
 
         public DebugInfoModel(
             ILogger<DebugInfoModel> logger,
-            IHostingEnvironment env,
+#if NETCOREAPP2_2
+			IHostingEnvironment env,
+#elif NETCOREAPP3_0
+			IHostEnvironment env,
+#endif
             IConfiguration config
             )
         {
@@ -138,7 +68,7 @@ namespace Smab.DebugInfo.Pages
             foreach (DictionaryEntry de in Environment.GetEnvironmentVariables())
             {
                 string key = de.Key.ToString().ToLowerInvariant();
-                if (key.Contains("secret") || key.Contains("key") || key.Contains("password") || key.Contains("pwd") || key.EndsWith("address"))
+                if (key.Contains("secret") || key.Contains("key") || key.Contains("password") || key.Contains("pwd") || key.StartsWith("rules") || key.EndsWith("address"))
                 {
                     EnvironmentVariablesInfo.TryAdd(de.Key.ToString(), "****************");
                 }
@@ -160,34 +90,49 @@ namespace Smab.DebugInfo.Pages
                 CookiesInfo.TryAdd(c.Key.ToString(), c.Value.ToString());
             }
 
-            EnvironmentFromJson = $"EnvironmentName: {_env.EnvironmentName}";
+			EnvironmentFromJson = $"EnvironmentName: {_env.EnvironmentName}";
             EnvironmentFromJson += Environment.NewLine + $"ApplicationName: {_env.ApplicationName}";
-            EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
+#if NETCOREAPP2_2
+			EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
+#endif
             EnvironmentFromJson += Environment.NewLine + $"ContentRootPath: {_env.ContentRootPath}";
 
-            // ToDo Broken in 2.2 with Newtonsoft 12.xxx
+			var jsonOptions = new JsonSerializerOptions
+			{
+				WriteIndented = true,
+			};
+
             try
             {
-                EnvironmentFromJson = JsonConvert.SerializeObject(_env, Formatting.Indented);
+                EnvironmentFromJson = JsonSerializer.Serialize<object>(_env, jsonOptions);
             }
             catch (Exception ex)
             {
+				_logger.LogError("Serialize IHostingEnvironment Error: {Error}", ex.Message);
+
                 EnvironmentFromJson = $"EnvironmentName: {_env.EnvironmentName}";
                 EnvironmentFromJson += Environment.NewLine + $"ApplicationName: {_env.ApplicationName}";
-                EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
-                EnvironmentFromJson += Environment.NewLine + $"ContentRootPath: {_env.ContentRootPath}";
+#if NETCOREAPP2_2
+				EnvironmentFromJson += Environment.NewLine + $"WebRootPath: {_env.WebRootPath}";
+#endif
+				EnvironmentFromJson += Environment.NewLine + $"ContentRootPath: {_env.ContentRootPath}";
             }
+
             try
             {
-                ConfigFromJson = JsonConvert.SerializeObject(_config, Formatting.Indented);
+                //ConfigFromJson = JsonSerializer.Serialize(_config, _config.GetType(), jsonOptions);
+                ConfigFromJson = JsonSerializer.Serialize(_config, jsonOptions);
             }
             catch (Exception ex)
             {
-                ConfigFromJson = "Broken in ASP.NET Core 2.2 with Newtonsoft 12.0.0.0";
                 ConfigFromJson += Environment.NewLine + Environment.NewLine;
-                ConfigFromJson += "JsonConvert.SerializeObject(_config, Formatting.Indented)";
+                ConfigFromJson += "System.Text.JsonSerializer.Serialize(_config, jsonOptions)";
                 ConfigFromJson += Environment.NewLine + $"{ex.Message}";
             }
+			if (ConfigFromJson == "{}")
+			{
+	            ConfigFromJson = "Since ASPNet 2.2 IConfiguration fails to Serialize to Json";
+			}
 
             var mvcH = new DebugMvcHelper();
             foreach (var controller in mvcH.GetControllers<Controller>().OrderBy(i => i.Name))
@@ -290,12 +235,14 @@ namespace Smab.DebugInfo.Pages
                 List<string> keys = new List<string>();
                 string value = "";
 
-                foreach (var key in GetProviderKeys(provider, null))
-                {
+#pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
+				foreach (var key in GetProviderKeys(provider, null))
+#pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
+				{
                     provider.TryGet(key, out value);
                     if (!string.IsNullOrWhiteSpace(value))
                     {
-                        if (key.ToLowerInvariant().Contains("secret") || key.ToLowerInvariant().Contains("key") || key.ToLowerInvariant().Contains("password") || key.ToLowerInvariant().Contains("pwd") || key.ToLowerInvariant().EndsWith("address"))
+                        if (key.ToLowerInvariant().Contains("secret") || key.ToLowerInvariant().Contains("key") || key.ToLowerInvariant().Contains("password") || key.ToLowerInvariant().Contains("pwd") || key.ToLowerInvariant().StartsWith("rules") || key.ToLowerInvariant().EndsWith("address"))
                         {
                             value = "********";
                         }
@@ -329,87 +276,5 @@ namespace Smab.DebugInfo.Pages
             return keys;
         }
 
-    }
-
-
-
-    class DebugMvcHelper
-    {
-        private static List<Type> GetSubClasses<T>()
-        {
-            return AppDomain
-                .CurrentDomain
-                .GetAssemblies()
-                .SelectMany(
-                    a => a.GetTypes().Where(type => type.IsSubclassOf(typeof(T)))
-                )
-                .Distinct()
-                .ToList();
-        }
-
-        public List<Type> GetControllers<T>()
-        {
-            List<Type> controllers = new List<Type>();
-            GetSubClasses<Controller>().ForEach(
-                type => controllers.Add(type.GetTypeInfo()));
-            return controllers;
-        }
-
-        public List<string> GetControllerNames()
-        {
-            List<string> controllerNames = new List<string>();
-            GetSubClasses<Controller>().ForEach(
-                type => controllerNames.Add(type.Name));
-            return controllerNames;
-        }
-
-        public List<FieldInfo> GetDeclaredFields(string ControllerName)
-        {
-            List<FieldInfo> fields = new List<FieldInfo>();
-
-            foreach (var controller in GetSubClasses<Controller>())
-            {
-                if (controller.Name == ControllerName)
-                {
-                    controller.GetTypeInfo().DeclaredFields.ToList().ForEach(f => fields.Add(f));
-                }
-            }
-            return fields;
-        }
-        public List<MethodInfo> GetDeclaredMethods(string ControllerName)
-        {
-            List<MethodInfo> actions = new List<MethodInfo>();
-
-            foreach (var controller in GetSubClasses<Controller>())
-            {
-                if (controller.Name == ControllerName)
-                {
-                    var methods = controller.GetTypeInfo().DeclaredMethods;
-                    foreach (var m in methods)
-                    {
-                        actions.Add(m);
-                    }
-                }
-            }
-            return actions;
-        }
-
-        public List<string> GetActionNames(string ControllerName)
-        {
-            List<string> actionNames = new List<string>();
-
-            foreach (var controller in GetSubClasses<Controller>())
-            {
-                if (controller.Name == ControllerName)
-                {
-                    var methods = controller.GetTypeInfo().DeclaredMethods;
-                    foreach (var info in methods)
-                    {
-                        actionNames.Add(info.Name);
-                    }
-                }
-            }
-            return actionNames;
-        }
     }
 }

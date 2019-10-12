@@ -9,12 +9,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.2.0" PrivateAssets="All" />
-    <!--<PackageReference Include="Smab.DebugInfo" Version="0.9.0-preview.20190201-2306" />-->
   </ItemGroup>
 
 
   <ItemGroup>
-    <ProjectReference Include="..\DebugInfo\DebugInfo.csproj" />
+    <ProjectReference Include="..\Smab.DebugInfo\Smab.DebugInfo.csproj" />
   </ItemGroup>
 
 </Project>

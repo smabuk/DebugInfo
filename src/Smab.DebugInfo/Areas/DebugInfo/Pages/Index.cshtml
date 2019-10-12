@@ -174,14 +174,12 @@
     <div class="tab-pane fade" id="ihosting" role="tabpanel" aria-labelledby="ihosting-tab">
         <h3>IHostingEnvironment</h3>
 <pre>
-@*@JsonConvert.SerializeObject(env, Formatting.Indented)*@
 @Model.EnvironmentFromJson
 </pre>
     </div>
     <div class="tab-pane fade" id="iconfig" role="tabpanel" aria-labelledby="iconfig-tab">
         <h3>IConfiguration</h3>
 <pre>
-@*@JsonConvert.SerializeObject(config, Formatting.Indented)*@
 @Model.ConfigFromJson
 </pre>
     </div>
@@ -265,7 +263,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var ai in Model.AssembliesInfo.OtherAssemblies)
+                @foreach (var ai in Model.AssembliesInfo.OtherAssemblies.Where(a => !a.IsDynamic))
                 {
                     bool firstRow = true;
                     @foreach (var ca in ai.CustomAttributes)
@@ -273,13 +271,17 @@
                         <tr>
                             @if (firstRow)
                             {
-                                <th rowspan="@ai.CustomAttributes.Count">@ai.Name</th>
+                                <th rowspan="@(ai.CustomAttributes.Count + 1)">@ai.Name</th>
                                 firstRow = false;
                             }
                             <td>@ca.Key</td>
                             <td>@ca.Value</td>
                         </tr>
                     }
+                    <tr>
+                        <td>Location</td>
+                        <td>@ai.Location</td>
+                    </tr>
                 }
             </tbody>
         </table>
