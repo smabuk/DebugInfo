@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.2;netcoreapp3.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.2;netcoreapp3.0;net5.0</TargetFrameworks>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
     <TieredCompilation>true</TieredCompilation>
-    <LangVersion>8.0</LangVersion>
+    <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
@@ -19,8 +19,8 @@
     <PackageProjectUrl>https://github.com/smabuk/Smab.DebugInfo</PackageProjectUrl>
     <RepositoryUrl>https://github.com/smabuk/DebugInfo</RepositoryUrl>
     <PackageTags>asp.net core, diagnostic, assemblies, configuration, config</PackageTags>
-    <PackageReleaseNotes>Target netcoreapp2.2 and netcoreapp3.0</PackageReleaseNotes>
-    <VersionPrefix>0.9.11</VersionPrefix>
+    <PackageReleaseNotes>Target netcoreapp2.2 and netcoreapp3.0 and net5.0rc1</PackageReleaseNotes>
+    <VersionPrefix>0.10.1</VersionPrefix>
     <Preview></Preview>
     <VersionSuffix Condition="'$(Preview)' != '' And '$(BUILD_BUILDNUMBER)' == ''">$(Preview).$([System.DateTime]::get_Now().get_Year())$([System.DateTime]::get_Now().get_Month().ToString("D2"))$([System.DateTime]::get_Now().get_Day().ToString("D2"))-$([System.DateTime]::get_Now().get_Hour().ToString("D2"))$([System.DateTime]::get_Now().get_Minute().ToString("D2"))</VersionSuffix>
     <VersionSuffix Condition="'$(Preview)' != '' And '$(BUILD_BUILDNUMBER)' != ''">$(Preview).$(BUILD_BUILDNUMBER)</VersionSuffix>
@@ -31,7 +31,14 @@
     <AssemblyName>Smab.DebugInfo</AssemblyName>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net5.0' ">
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="5.0.0-rc.1.20451.14" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0-rc.1.20451.14" />
+    <PackageReference Include="System.Text.Json" Version="5.0.0-rc.1.20451.14" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' != 'net5.0' ">
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
     <PackageReference Include="System.Text.Json" Version="4.6.0" />
   </ItemGroup>
