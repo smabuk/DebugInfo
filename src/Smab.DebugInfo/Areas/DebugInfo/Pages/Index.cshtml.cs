@@ -14,6 +14,9 @@ using Microsoft.Extensions.Configuration;
 #if NETCOREAPP3_0
 	using Microsoft.Extensions.Hosting;
 #endif
+#if NET5_0
+	using Microsoft.Extensions.Hosting;
+#endif
 using Microsoft.Extensions.Logging;
 using Smab.DebugInfo.Helpers;
 using Smab.DebugInfo.Models;
@@ -41,6 +44,8 @@ namespace Smab.DebugInfo.Pages
         private readonly IHostingEnvironment _env;
 #elif NETCOREAPP3_0
         private readonly IHostEnvironment _env;
+#elif NET5_0
+        private readonly IHostEnvironment _env;
 #endif
         private readonly IConfiguration _config;
         private readonly ILogger _logger;
@@ -50,6 +55,8 @@ namespace Smab.DebugInfo.Pages
 #if NETCOREAPP2_2
 			IHostingEnvironment env,
 #elif NETCOREAPP3_0
+			IHostEnvironment env,
+#elif NET5_0
 			IHostEnvironment env,
 #endif
             IConfiguration config

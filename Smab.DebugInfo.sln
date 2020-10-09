@@ -12,7 +12,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		nuget.txt = nuget.txt
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDemo3", "src\WebDemo3\WebDemo3.csproj", "{CAAC1DE4-50A5-453C-AA6E-26AE3F76BDC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebDemo3", "src\WebDemo3\WebDemo3.csproj", "{CAAC1DE4-50A5-453C-AA6E-26AE3F76BDC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebDemo5", "src\WebDemo5\WebDemo5.csproj", "{9BE6840F-9F9A-4B3F-B8B3-F5A6231D8FC3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +34,10 @@ Global
 		{CAAC1DE4-50A5-453C-AA6E-26AE3F76BDC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAAC1DE4-50A5-453C-AA6E-26AE3F76BDC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAAC1DE4-50A5-453C-AA6E-26AE3F76BDC9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9BE6840F-9F9A-4B3F-B8B3-F5A6231D8FC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9BE6840F-9F9A-4B3F-B8B3-F5A6231D8FC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9BE6840F-9F9A-4B3F-B8B3-F5A6231D8FC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9BE6840F-9F9A-4B3F-B8B3-F5A6231D8FC3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
