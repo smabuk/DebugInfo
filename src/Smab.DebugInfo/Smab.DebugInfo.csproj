@@ -20,7 +20,7 @@
     <RepositoryUrl>https://github.com/smabuk/DebugInfo</RepositoryUrl>
     <PackageTags>asp.net core, diagnostic, assemblies, configuration, config</PackageTags>
     <PackageReleaseNotes>Target netcoreapp2.2 and netcoreapp3.0 and net5.0</PackageReleaseNotes>
-    <VersionPrefix>0.10.4</VersionPrefix>
+    <VersionPrefix>0.10.5</VersionPrefix>
     <Preview></Preview>
     <VersionSuffix Condition="'$(Preview)' != '' And '$(BUILD_BUILDNUMBER)' == ''">$(Preview).$([System.DateTime]::get_Now().get_Year())$([System.DateTime]::get_Now().get_Month().ToString("D2"))$([System.DateTime]::get_Now().get_Day().ToString("D2"))-$([System.DateTime]::get_Now().get_Hour().ToString("D2"))$([System.DateTime]::get_Now().get_Minute().ToString("D2"))</VersionSuffix>
     <VersionSuffix Condition="'$(Preview)' != '' And '$(BUILD_BUILDNUMBER)' != ''">$(Preview).$(BUILD_BUILDNUMBER)</VersionSuffix>
@@ -35,7 +35,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="5.0.0" />
-    <PackageReference Include="System.Text.Json" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="5.0.1" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' != 'net5.0' ">

@@ -127,8 +127,8 @@ namespace Smab.DebugInfo.Pages
 				EnvironmentFromJson += Environment.NewLine + $"ContentRootPath: {_env.ContentRootPath}";
 			}
 
-			try
-			{
+#if NETCOREAPP2_2
+			try {
 				//ConfigFromJson = JsonSerializer.Serialize(_config, _config.GetType(), jsonOptions);
 				ConfigFromJson = JsonSerializer.Serialize(_config, jsonOptions);
 			}
@@ -138,9 +138,11 @@ namespace Smab.DebugInfo.Pages
 				ConfigFromJson += "System.Text.JsonSerializer.Serialize(_config, jsonOptions)";
 				ConfigFromJson += Environment.NewLine + $"{ex.Message}";
 			}
-			if (ConfigFromJson == "{}")
-			{
-				ConfigFromJson = "Since ASPNet 2.2 IConfiguration fails to Serialize to Json";
+#else
+			ConfigFromJson = (_config as IConfigurationRoot).GetDebugView();
+#endif
+			if (ConfigFromJson == "{}" || string.IsNullOrWhiteSpace(ConfigFromJson)) {
+				ConfigFromJson = "No configuration found";
 			}
 
 			DebugMvcHelper? mvcH = new();
